@@ -1,0 +1,24 @@
+function DoParallel(functions,end_callback){
+    var proc_actions_n = 0;
+    var i = 0;
+    for(var a in functions){
+        proc_actions_n++;
+        setTimeout(function(){
+            if(typeof(functions[i])=='function'){
+                functions[i](function(){
+                    proc_actions_n--;
+                });
+            }else{
+                console.error('DoParallel: Обнаружен объект, не являющийся функцией (неверный тип - "'+typeof(functions[i])+'")');
+            }
+            i++;
+        },1);
+    }
+    var doparallel_watchdog_holder = setInterval(function(){
+        if(proc_actions_n==0){
+            clearInterval(doparallel_watchdog_holder);
+            end_callback();
+        }
+    },30);
+    return doparallel_watchdog_holder;
+}
